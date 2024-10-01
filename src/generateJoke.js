@@ -1,3 +1,3 @@
 export default function generateJoke() {
-    return 'joke'
+    return 'a joke'
 }
