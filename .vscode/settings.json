@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
         "callbag"
-    ]
+    ],
+    "liveServer.settings.root": "/dist"
 }
