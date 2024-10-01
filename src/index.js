@@ -1,6 +1,6 @@
 // main.js
-const { pipe, take, map, forEach } = require('callbag-basics')
-const { workerSource } = require('callbag-worker')
+import { pipe, take, map, forEach } from 'callbag-basics'
+import { workerSource } from 'callbag-worker'
 
 pipe(
     workerSource(new Worker(new URL('./worker.js', import.meta.url))), // or workerSource('worker.js')
