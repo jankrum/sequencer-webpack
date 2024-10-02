@@ -1,0 +1,6 @@
+                  Transporter
+                      \/
+Metronome Worker > Sequencer > Parts > Synth
+
+Transporter:
+-Subscribes to buttons and sends out presses
