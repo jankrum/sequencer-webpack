@@ -1,12 +1,26 @@
 import dm from './dm.js'
 
-class Transporter {
-    static STATES = {
-        PLAYING: 0,
-        PAUSED: 1,
-        STOPPED: 2,
-    }
+const BUTTON_NAMES = ['previous', 'play', 'pause', 'stop', 'next']
 
+const PLAYBACK_STATE_DICT = {
+    playing: {
+        play: true,
+        pause: false,
+        stop: false,
+    },
+    paused: {
+        play: false,
+        pause: true,
+        stop: false,
+    },
+    stopped: {
+        play: false,
+        pause: true,
+        stop: true,
+    },
+}
+
+class Transporter {
     constructor() {
         this.chartTitleHeading = null
         this.buttons = {}
@@ -20,44 +34,45 @@ class Transporter {
 
         const buttonDiv = dm('div')
         transporterDiv.appendChild(buttonDiv)
-        const buttonNames = ['previous', 'play', 'pause', 'stop', 'next']
 
-        for (const name of buttonNames) {
+        for (const name of BUTTON_NAMES) {
             const button = dm('button', {}, name)
             this.buttons[name] = button
             buttonDiv.appendChild(button)
         }
     }
 
-    addEventListener(buttonName, callback) {
-        const button = this.buttons[buttonName]
+    addEventListener(name, callback) {
+        const button = this.buttons[name]
+
+        if (!button) {
+            throw new Error(`Invalid button name: ${name}`)
+        }
+
         button.addEventListener('click', callback)
     }
 
-    sendState(chartTitle, canPrevious, state, canNext) {
-        this.chartTitleHeading.innerText = chartTitle
+    send({ type, value }) {
+        switch (type) {
+            case 'CHANGE_CHART':
+                this.chartTitleHeading.innerText = value.chartTitle
+                this.buttons.previous.disabled = !value.canPrevious
+                this.buttons.next.disabled = !value.canNext
+                break
+            case 'CHANGE_PLAYBACK':
+                const stateDict = PLAYBACK_STATE_DICT[value]
 
-        this.buttons.previous.disabled = !canPrevious
+                if (!stateDict) {
+                    throw new Error(`Invalid playback state: ${value}`)
+                }
 
-        switch (state) {
-            case Transporter.STATES.PLAYING:
-                this.buttons.play.disabled = true
-                this.buttons.pause.disabled = false
-                this.buttons.stop.disabled = false
+                for (const [name, isDisabled] of Object.entries(stateDict)) {
+                    this.buttons[name].disabled = isDisabled
+                }
                 break
-            case Transporter.STATES.PAUSED:
-                this.buttons.play.disabled = false
-                this.buttons.pause.disabled = true
-                this.buttons.stop.disabled = false
-                break
-            case Transporter.STATES.STOPPED:
-                this.buttons.play.disabled = false
-                this.buttons.pause.disabled = true
-                this.buttons.stop.disabled = true
-                break
+            default:
+                throw new Error(`Invalid type: ${type}`)
         }
-
-        this.buttons.next.disabled = !canNext
     }
 }
 

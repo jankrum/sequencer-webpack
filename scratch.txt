@@ -1,6 +1,25 @@
-                  Transporter
-                      \/
-Metronome Worker > Sequencer > Parts > Synth
+The transporter gets button presses from the user
+We want to it send out button presses to the paginator and playbacker
+If the button press is a "next" or "previous" button, it should:
+    - send the button press to the paginator
+If the button press is a "start", "pause", or "stop" button, it should:
+    - send the button press to the playbacker
 
-Transporter:
--Subscribes to buttons and sends out presses
+The paginator is in charge of paginating through the setlist
+We want to be able to tell it when to go to the previous and next chart
+When it goes to a new chart, it should:
+    - send the new chart title and pagination info to the transporter
+    - send the new chart to the playbacker
+
+The playbacker is in change of playing back the chart
+We want to be able to tell it when to start, stop, pause, resume, and use a certain chart
+When it starts, it should:
+    - send the playbackState to the transporter
+When it stops, it should:
+    - send the playbackState to the transporter
+When it pauses, it should:
+    - send the playbackState to the transporter
+When it resumes, it should:
+    - send the playbackState to the transporter
+When it uses a certain chart, it should:
+    - stop itself if it is currently playing or paused

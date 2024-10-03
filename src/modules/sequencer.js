@@ -1,65 +1,75 @@
 import Transporter from './transporter.js'
-import { createMachine, assign, createActor } from 'xstate'
+import Paginator from './sequencer/paginator.js'
+import Playbacker from './sequencer/playbacker.js'
 
 class Sequencer {
     constructor() {
         this.transporter = new Transporter()
+        this.paginator = new Paginator()
+        this.playbacker = new Playbacker()
     }
 
-    setUp() {
+    async setUp() {
         const transporter = this.transporter
+        const paginator = this.paginator
+        const playbacker = this.playbacker
 
         transporter.setUp()
+        paginator.setUp()
+        playbacker.setUp()
 
-        const playbackMachine = createMachine({
-            context: {
-                chartTitle: '',
-                canPrevious: false,
-                state: Transporter.STATES.STOPPED,
-                canNext: false,
-            },
-            on: {
-                PLAY: {
-                    actions: assign({
-                        state: Transporter.STATES.PLAYING,
-                    }),
-                },
-                PAUSE: {
-                    actions: assign({
-                        state: Transporter.STATES.PAUSED,
-                    }),
-                },
-                STOP: {
-                    actions: assign({
-                        state: Transporter.STATES.STOPPED,
-                    }),
-                },
-            },
+        transporter.addEventListener('previous', () => {
+            paginator.send({ type: 'PREVIOUS' })
         })
 
-        const playbackActor = createActor(playbackMachine).start()
-
-        playbackActor.subscribe(playbackState => {
-            console.log('playbackState', playbackState)
-
-            const { chartTitle, canPrevious, state, canNext } = playbackState.context
-
-            transporter.sendState(chartTitle, canPrevious, state, canNext)
+        transporter.addEventListener('next', () => {
+            paginator.send({ type: 'NEXT' })
         })
 
         transporter.addEventListener('play', () => {
-            playbackActor.send({ type: 'PLAY' })
+            playbacker.send({ type: 'PLAY' })
         })
 
         transporter.addEventListener('pause', () => {
-            playbackActor.send({ type: 'PAUSE' })
+            playbacker.send({ type: 'PAUSE' })
         })
 
         transporter.addEventListener('stop', () => {
-            playbackActor.send({ type: 'STOP' })
+            playbacker.send({ type: 'STOP' })
         })
 
-        playbackActor.send({ type: 'STOP' })
+        paginator.addEventListener('newChart', event => {
+            const { chart, chartTitle, canPrevious, canNext } = event
+
+            transporter.send({
+                type: 'CHANGE_CHART',
+                value: { chartTitle, canPrevious, canNext }
+            })
+
+            playbacker.send({
+                type: 'CHANGE_CHART',
+                value: chart
+            })
+        })
+
+        playbacker.addEventListener('play', () => {
+            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'playing' })
+        })
+
+        playbacker.addEventListener('pause', () => {
+            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'paused' })
+        })
+
+        playbacker.addEventListener('resume', () => {
+            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'playing' })
+        })
+
+        playbacker.addEventListener('stop', () => {
+            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'stopped' })
+        })
+
+        // Start everything
+        paginator.send({ type: 'INIT' })
     }
 }
 
