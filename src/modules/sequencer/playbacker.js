@@ -1,6 +1,6 @@
 class PlaybackMachine {
     constructor() {
-        this.playbackState = 'stopped'
+        this.playbackState = 'paused'
         this.chart = null
 
         this.subscriptions = {}
@@ -16,7 +16,16 @@ class PlaybackMachine {
         this.subscriptions[action].push(callback)
     }
 
-    send({ type }) {
+    send({ type, value }) {
+        if (type === 'CHANGE_CHART') {
+            this.chart = value
+            console.log('playback state when changing chart', this.playbackState)
+            if (this.playbackState !== 'stopped') {
+                this.send({ type: 'STOP' })
+            }
+            return
+        }
+
         switch (this.playbackState) {
             case 'playing':
                 switch (type) {

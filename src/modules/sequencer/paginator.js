@@ -29,36 +29,39 @@ class Paginator {
     }
 
     send({ type }) {
-        function newChart() {
-            const chartName = setlist[this.chartIndex]
-            const chart = loadChart(chartName)
-            const chartTitle = chart.title
-            const canPrevious = this.chartIndex > 0
-            const canNext = this.chartIndex < setlistLength - 1
-
-            for (const subscriber of this.subscribers) {
-                subscriber({ chart, chartTitle, canPrevious, canNext })
-            }
-        }
-
         switch (type) {
             case 'PREVIOUS':
                 if (this.chartIndex > 0) {
                     this.chartIndex -= 1
-                    newChart()
+                    this.newChart()
                 }
                 break
             case 'NEXT':
                 if (this.chartIndex < setlistLength - 1) {
                     this.chartIndex += 1
-                    newChart()
+                    this.newChart()
                 }
                 break
             case 'INIT':
-                newChart()
+                console.log('INIT')
+                this.newChart()
                 break
             default:
                 throw new Error(`Invalid type: ${type}`)
+        }
+    }
+
+    newChart() {
+        console.log(this)
+
+        const chartName = setlist[this.chartIndex]
+        const chart = loadChart(chartName)
+        const chartTitle = chart.title
+        const canPrevious = this.chartIndex > 0
+        const canNext = this.chartIndex < setlistLength - 1
+
+        for (const subscriber of this.subscribers) {
+            subscriber({ chart, chartTitle, canPrevious, canNext })
         }
     }
 }

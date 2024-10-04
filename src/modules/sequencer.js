@@ -9,7 +9,7 @@ class Sequencer {
         this.playbacker = new Playbacker()
     }
 
-    async setUp() {
+    setUp() {
         const transporter = this.transporter
         const paginator = this.paginator
         const playbacker = this.playbacker
