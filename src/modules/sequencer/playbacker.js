@@ -40,6 +40,7 @@ class PlaybackMachine {
                     default:
                         throw new Error(`Cannot ${type} while playing`)
                 }
+                break
             case 'paused':
                 switch (type) {
                     case 'PLAY':
@@ -53,6 +54,7 @@ class PlaybackMachine {
                     default:
                         throw new Error(`Cannot ${type} while paused`)
                 }
+                break
             case 'stopped':
                 switch (type) {
                     case 'PLAY':
@@ -62,6 +64,7 @@ class PlaybackMachine {
                     default:
                         throw new Error(`Cannot ${type} while stopped`)
                 }
+                break
             default:
                 throw new Error(`Invalid playback state: ${this.playbackState}`)
         }
