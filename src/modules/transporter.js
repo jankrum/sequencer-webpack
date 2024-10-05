@@ -1,6 +1,12 @@
 import dm from './dm.js'
 
-const BUTTON_NAMES = ['previous', 'play', 'pause', 'stop', 'next']
+const BUTTON_SYMBOLS_AND_NAMES = [
+    ['⏮', 'previous'],
+    ['▶', 'play'],
+    ['⏸', 'pause'],
+    ['⏹', 'stop'],
+    ['⏭', 'next'],
+]
 
 const PLAYBACK_STATE_DICT = {
     playing: {
@@ -35,8 +41,8 @@ class Transporter {
         const buttonDiv = dm('div')
         transporterDiv.appendChild(buttonDiv)
 
-        for (const name of BUTTON_NAMES) {
-            const button = dm('button', {}, name)
+        for (const [symbol, name] of BUTTON_SYMBOLS_AND_NAMES) {
+            const button = dm('button', {}, symbol)
             this.buttons[name] = button
             buttonDiv.appendChild(button)
         }
