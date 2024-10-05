@@ -1,0 +1,32 @@
+:root {
+    --red: #b23535;
+    --green: #38ad5f;
+    --blue: #464ca5;
+    --white: #eeeade;
+    --black: #282828;
+
+
+    --text-color: var(--black);
+    --background-color: var(--white);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: var(--white);
+        --background-color: var(--black);
+    }
+}
+
+* {
+    color: inherit;
+    background-color: inherit;
+    font-family: inherit;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    border-color: var(--text-color);
+}
