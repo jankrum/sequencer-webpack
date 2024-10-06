@@ -61,23 +61,31 @@ class Transporter {
     send({ type, value }) {
         switch (type) {
             case 'CHANGE_CHART':
-                this.chartTitleHeading.innerText = value.chartTitle
-                this.buttons.previous.disabled = !value.canPrevious
-                this.buttons.next.disabled = !value.canNext
+                this.changeChart(value)
                 break
             case 'CHANGE_PLAYBACK':
-                const stateDict = PLAYBACK_STATE_DICT[value]
-
-                if (!stateDict) {
-                    throw new Error(`Invalid playback state: ${value}`)
-                }
-
-                for (const [name, isDisabled] of Object.entries(stateDict)) {
-                    this.buttons[name].disabled = isDisabled
-                }
+                this.changePlayback(value)
                 break
             default:
                 throw new Error(`Invalid type: ${type}`)
+        }
+    }
+
+    changeChart({ chartTitle, canPrevious, canNext }) {
+        this.chartTitleHeading.innerText = chartTitle
+        this.buttons.previous.disabled = !canPrevious
+        this.buttons.next.disabled = !canNext
+    }
+
+    changePlayback(playbackState) {
+        const stateDict = PLAYBACK_STATE_DICT[playbackState]
+
+        if (!stateDict) {
+            throw new Error(`Invalid playback state: ${playbackState}`)
+        }
+
+        for (const [name, isDisabled] of Object.entries(stateDict)) {
+            this.buttons[name].disabled = isDisabled
         }
     }
 }

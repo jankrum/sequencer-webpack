@@ -1,12 +1,16 @@
-class PlaybackMachine {
+import Band from './playbacker/band.js'
+
+class Playbacker {
     constructor() {
         this.playbackState = 'paused'
-        this.chart = null
+        this.band = new Band()
 
         this.subscriptions = {}
     }
 
-    setUp() { }
+    setUp() {
+
+    }
 
     addEventListener(action, callback) {
         if (!this.subscriptions[action]) {
@@ -18,11 +22,7 @@ class PlaybackMachine {
 
     send({ type, value }) {
         if (type === 'CHANGE_CHART') {
-            this.chart = value
-            console.log('playback state when changing chart', this.playbackState)
-            if (this.playbackState !== 'stopped') {
-                this.send({ type: 'STOP' })
-            }
+            this.changeChart(value)
             return
         }
 
@@ -30,12 +30,10 @@ class PlaybackMachine {
             case 'playing':
                 switch (type) {
                     case 'PAUSE':
-                        this.playbackState = 'paused'
-                        this.subscriptions['pause'].forEach(callback => callback())
+                        this.pause()
                         break
                     case 'STOP':
-                        this.playbackState = 'stopped'
-                        this.subscriptions['stop'].forEach(callback => callback())
+                        this.stop()
                         break
                     default:
                         throw new Error(`Cannot ${type} while playing`)
@@ -44,12 +42,10 @@ class PlaybackMachine {
             case 'paused':
                 switch (type) {
                     case 'PLAY':
-                        this.playbackState = 'playing'
-                        this.subscriptions['resume'].forEach(callback => callback())
+                        this.resume()
                         break
                     case 'STOP':
-                        this.playbackState = 'stopped'
-                        this.subscriptions['stop'].forEach(callback => callback())
+                        this.stop()
                         break
                     default:
                         throw new Error(`Cannot ${type} while paused`)
@@ -58,8 +54,7 @@ class PlaybackMachine {
             case 'stopped':
                 switch (type) {
                     case 'PLAY':
-                        this.playbackState = 'playing'
-                        this.subscriptions['play'].forEach(callback => callback())
+                        this.play()
                         break
                     default:
                         throw new Error(`Cannot ${type} while stopped`)
@@ -69,6 +64,41 @@ class PlaybackMachine {
                 throw new Error(`Invalid playback state: ${this.playbackState}`)
         }
     }
+
+    changeChart(newChart) {
+        this.band.send({ type: 'CHANGE_CHART', value: newChart })
+        if (this.playbackState !== 'stopped') {
+            this.send({ type: 'STOP' })
+        }
+    }
+
+    play() {
+        this.playbackState = 'playing'
+        this.notifySubscribers('play')
+    }
+
+    pause() {
+        this.playbackState = 'paused'
+        this.notifySubscribers('pause')
+    }
+
+    resume() {
+        this.playbackState = 'playing'
+        this.notifySubscribers('resume')
+    }
+
+    stop() {
+        this.playbackState = 'stopped'
+        this.notifySubscribers('stop')
+    }
+
+    notifySubscribers(action) {
+        if (this.subscriptions[action]) {
+            this.subscriptions[action].forEach(callback => callback())
+        } else {
+            throw new Error(`Invalid action: ${action}`)
+        }
+    }
 }
 
-export default PlaybackMachine
+export default Playbacker

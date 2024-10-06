@@ -31,19 +31,12 @@ class Paginator {
     send({ type }) {
         switch (type) {
             case 'PREVIOUS':
-                if (this.chartIndex > 0) {
-                    this.chartIndex -= 1
-                    this.newChart()
-                }
+                this.goPrevious()
                 break
             case 'NEXT':
-                if (this.chartIndex < setlistLength - 1) {
-                    this.chartIndex += 1
-                    this.newChart()
-                }
+                this.goNext()
                 break
             case 'INIT':
-                console.log('INIT')
                 this.newChart()
                 break
             default:
@@ -51,9 +44,21 @@ class Paginator {
         }
     }
 
-    newChart() {
-        console.log(this)
+    goPrevious() {
+        if (this.chartIndex > 0) {
+            this.chartIndex -= 1
+            this.newChart()
+        }
+    }
 
+    goNext() {
+        if (this.chartIndex < setlistLength - 1) {
+            this.chartIndex += 1
+            this.newChart()
+        }
+    }
+
+    newChart() {
         const chartName = setlist[this.chartIndex]
         const chart = loadChart(chartName)
         const chartTitle = chart.title
