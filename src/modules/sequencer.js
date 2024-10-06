@@ -8,7 +8,7 @@ class Sequencer {
     #playbacker
 
     constructor() {
-        this.transporter = new Transporter()
+        this.#transporter = new Transporter()
         this.#paginator = new Paginator()
         this.#playbacker = new Playbacker()
     }
