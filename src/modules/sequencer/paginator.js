@@ -1,5 +1,5 @@
-import setlist from '../../static/setlist.json'
-const setlistLength = setlist.length
+import SETLIST from '../../static/setlist.json'
+const SETLIST_LENGTH = SETLIST.length
 
 function loadChart(name) {
     return {
@@ -8,20 +8,19 @@ function loadChart(name) {
 }
 
 class Paginator {
+    #chartIndex  // The index of the current chart in the setlist
+    #subscriptions  // Used to store subscriptions
+
     constructor() {
-        // The index of the current chart in the setlist
-        this.chartIndex = 0
-
-        // Used to store subscribers
-        this.subscribers = []
+        this.#chartIndex = 0
+        this.#subscriptions = []
     }
-
-    setUp() { }
 
     addEventListener(action, callback) {
         switch (action) {
             case 'newChart':
-                this.subscribers.push(callback)
+                // The only action we have is newChart
+                this.#subscriptions.push(callback)
                 break
             default:
                 throw new Error(`Invalid action: ${action}`)
@@ -31,41 +30,47 @@ class Paginator {
     send({ type }) {
         switch (type) {
             case 'PREVIOUS':
-                this.goPrevious()
+                this.#goPrevious()
                 break
             case 'NEXT':
-                this.goNext()
+                this.#goNext()
                 break
             case 'INIT':
-                this.newChart()
+                this.#newChart()
                 break
             default:
                 throw new Error(`Invalid type: ${type}`)
         }
     }
 
-    goPrevious() {
-        if (this.chartIndex > 0) {
-            this.chartIndex -= 1
-            this.newChart()
+    #goPrevious() {
+        if (this.#chartIndex > 0) {
+            // Decrement if we can and load the new chart
+            this.#chartIndex -= 1
+            this.#newChart()
         }
     }
 
-    goNext() {
-        if (this.chartIndex < setlistLength - 1) {
-            this.chartIndex += 1
-            this.newChart()
+    #goNext() {
+        if (this.#chartIndex < SETLIST_LENGTH - 1) {
+            // Increment if we can and load the new chart
+            this.#chartIndex += 1
+            this.#newChart()
         }
     }
 
-    newChart() {
-        const chartName = setlist[this.chartIndex]
+    #newChart() {
+        // Load the new chart
+        const chartName = SETLIST[this.#chartIndex]
         const chart = loadChart(chartName)
-        const chartTitle = chart.title
-        const canPrevious = this.chartIndex > 0
-        const canNext = this.chartIndex < setlistLength - 1
 
-        for (const subscriber of this.subscribers) {
+        // Transporter needs the chart title and the pagination information
+        const chartTitle = chart.title
+        const canPrevious = this.#chartIndex > 0
+        const canNext = this.#chartIndex < SETLIST_LENGTH - 1
+
+        // Notify all subscribers
+        for (const subscriber of this.#subscriptions) {
             subscriber({ chart, chartTitle, canPrevious, canNext })
         }
     }

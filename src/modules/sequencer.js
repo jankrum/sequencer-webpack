@@ -3,20 +3,22 @@ import Paginator from './sequencer/paginator.js'
 import Playbacker from './sequencer/playbacker.js'
 
 class Sequencer {
+    #transporter
+    #paginator
+    #playbacker
+
     constructor() {
         this.transporter = new Transporter()
-        this.paginator = new Paginator()
-        this.playbacker = new Playbacker()
+        this.#paginator = new Paginator()
+        this.#playbacker = new Playbacker()
     }
 
     setUp() {
-        const transporter = this.transporter
-        const paginator = this.paginator
-        const playbacker = this.playbacker
+        const transporter = this.#transporter
+        const paginator = this.#paginator
+        const playbacker = this.#playbacker
 
         transporter.setUp()
-        paginator.setUp()
-        playbacker.setUp()
 
         transporter.addEventListener('previous', () => {
             paginator.send({ type: 'PREVIOUS' })

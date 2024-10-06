@@ -1,39 +1,38 @@
 import Band from './playbacker/band.js'
 
 class Playbacker {
+    #playbackState  // 'playing', 'paused', or 'stopped'
+    #band  // An instance of the Band class
+    #subscriptions  // Used to store subscribers
+
     constructor() {
-        this.playbackState = 'paused'
-        this.band = new Band()
-
-        this.subscriptions = {}
-    }
-
-    setUp() {
-
+        this.#playbackState = 'paused'
+        this.#band = new Band()
+        this.#subscriptions = {}
     }
 
     addEventListener(action, callback) {
-        if (!this.subscriptions[action]) {
-            this.subscriptions[action] = []
+        if (!this.#subscriptions[action]) {
+            this.#subscriptions[action] = []
         }
 
-        this.subscriptions[action].push(callback)
+        this.#subscriptions[action].push(callback)
     }
 
     send({ type, value }) {
         if (type === 'CHANGE_CHART') {
-            this.changeChart(value)
+            this.#changeChart(value)
             return
         }
 
-        switch (this.playbackState) {
+        switch (this.#playbackState) {
             case 'playing':
                 switch (type) {
                     case 'PAUSE':
-                        this.pause()
+                        this.#pause()
                         break
                     case 'STOP':
-                        this.stop()
+                        this.#stop()
                         break
                     default:
                         throw new Error(`Cannot ${type} while playing`)
@@ -42,10 +41,10 @@ class Playbacker {
             case 'paused':
                 switch (type) {
                     case 'PLAY':
-                        this.resume()
+                        this.#resume()
                         break
                     case 'STOP':
-                        this.stop()
+                        this.#stop()
                         break
                     default:
                         throw new Error(`Cannot ${type} while paused`)
@@ -54,47 +53,47 @@ class Playbacker {
             case 'stopped':
                 switch (type) {
                     case 'PLAY':
-                        this.play()
+                        this.#play()
                         break
                     default:
                         throw new Error(`Cannot ${type} while stopped`)
                 }
                 break
             default:
-                throw new Error(`Invalid playback state: ${this.playbackState}`)
+                throw new Error(`Invalid playback state: ${this.#playbackState}`)
         }
     }
 
-    changeChart(newChart) {
-        this.band.send({ type: 'CHANGE_CHART', value: newChart })
-        if (this.playbackState !== 'stopped') {
+    #changeChart(newChart) {
+        this.#band.send({ type: 'CHANGE_CHART', value: newChart })
+        if (this.#playbackState !== 'stopped') {
             this.send({ type: 'STOP' })
         }
     }
 
-    play() {
-        this.playbackState = 'playing'
-        this.notifySubscribers('play')
+    #play() {
+        this.#playbackState = 'playing'
+        this.#notifySubscribers('play')
     }
 
-    pause() {
-        this.playbackState = 'paused'
-        this.notifySubscribers('pause')
+    #pause() {
+        this.#playbackState = 'paused'
+        this.#notifySubscribers('pause')
     }
 
-    resume() {
-        this.playbackState = 'playing'
-        this.notifySubscribers('resume')
+    #resume() {
+        this.#playbackState = 'playing'
+        this.#notifySubscribers('resume')
     }
 
-    stop() {
-        this.playbackState = 'stopped'
-        this.notifySubscribers('stop')
+    #stop() {
+        this.#playbackState = 'stopped'
+        this.#notifySubscribers('stop')
     }
 
-    notifySubscribers(action) {
-        if (this.subscriptions[action]) {
-            this.subscriptions[action].forEach(callback => callback())
+    #notifySubscribers(action) {
+        if (this.#subscriptions[action]) {
+            this.#subscriptions[action].forEach(callback => callback())
         } else {
             throw new Error(`Invalid action: ${action}`)
         }
