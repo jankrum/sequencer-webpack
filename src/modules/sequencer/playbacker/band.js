@@ -1,11 +1,11 @@
 class Band {
     constructor() { }
 
-    setUp() { }
+    setUp(playbacker) { }
 
-    loadChart(chart) { }
+    send(type, value) { }
 
-    send() { }
+    changeChart() { }
 
     play() { }
 

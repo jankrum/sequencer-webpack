@@ -27,7 +27,7 @@ class Paginator {
         }
     }
 
-    send({ type }) {
+    send(type) {
         switch (type) {
             case 'PREVIOUS':
                 this.#goPrevious()

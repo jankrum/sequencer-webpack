@@ -19,7 +19,7 @@ class Playbacker {
         this.#subscriptions[action].push(callback)
     }
 
-    send({ type, value }) {
+    send(type, value) {
         if (type === 'CHANGE_CHART') {
             this.#changeChart(value)
             return
@@ -65,9 +65,9 @@ class Playbacker {
     }
 
     #changeChart(newChart) {
-        this.#band.send({ type: 'CHANGE_CHART', value: newChart })
+        this.#band.send('CHANGE_CHART', newChart)
         if (this.#playbackState !== 'stopped') {
-            this.send({ type: 'STOP' })
+            this.send('STOP')
         }
     }
 

@@ -21,57 +21,51 @@ class Sequencer {
         transporter.setUp()
 
         transporter.addEventListener('previous', () => {
-            paginator.send({ type: 'PREVIOUS' })
+            paginator.send('PREVIOUS')
         })
 
         transporter.addEventListener('next', () => {
-            paginator.send({ type: 'NEXT' })
+            paginator.send('NEXT')
         })
 
         transporter.addEventListener('play', () => {
-            playbacker.send({ type: 'PLAY' })
+            playbacker.send('PLAY')
         })
 
         transporter.addEventListener('pause', () => {
-            playbacker.send({ type: 'PAUSE' })
+            playbacker.send('PAUSE')
         })
 
         transporter.addEventListener('stop', () => {
-            playbacker.send({ type: 'STOP' })
+            playbacker.send('STOP')
         })
 
         paginator.addEventListener('newChart', event => {
             const { chart, chartTitle, canPrevious, canNext } = event
 
-            transporter.send({
-                type: 'CHANGE_CHART',
-                value: { chartTitle, canPrevious, canNext }
-            })
+            transporter.send('CHANGE_CHART', { chartTitle, canPrevious, canNext })
 
-            playbacker.send({
-                type: 'CHANGE_CHART',
-                value: chart
-            })
+            playbacker.send('CHANGE_CHART', chart)
         })
 
         playbacker.addEventListener('play', () => {
-            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'playing' })
+            transporter.send('CHANGE_PLAYBACK', 'playing')
         })
 
         playbacker.addEventListener('pause', () => {
-            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'paused' })
+            transporter.send('CHANGE_PLAYBACK', 'paused')
         })
 
         playbacker.addEventListener('resume', () => {
-            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'playing' })
+            transporter.send('CHANGE_PLAYBACK', 'playing')
         })
 
         playbacker.addEventListener('stop', () => {
-            transporter.send({ type: 'CHANGE_PLAYBACK', value: 'stopped' })
+            transporter.send('CHANGE_PLAYBACK', 'stopped')
         })
 
         // Start everything
-        paginator.send({ type: 'INIT' })
+        paginator.send('INIT')
     }
 }
 

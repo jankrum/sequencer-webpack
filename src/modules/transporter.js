@@ -71,7 +71,7 @@ class Transporter {
         button.addEventListener('click', callback)
     }
 
-    send({ type, value }) {
+    send(type, value) {
         switch (type) {
             case 'CHANGE_CHART':
                 this.#changeChart(value)
