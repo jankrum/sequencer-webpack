@@ -1,15 +1,9 @@
 import Band from './playbacker/band.js'
 
 class Playbacker {
-    #playbackState  // 'playing', 'paused', or 'stopped'
-    #band  // An instance of the Band class
-    #subscriptions  // Used to store subscribers
-
-    constructor() {
-        this.#playbackState = 'paused'
-        this.#band = new Band()
-        this.#subscriptions = {}
-    }
+    #playbackState = 'paused'  // 'playing', 'paused', or 'stopped'
+    #band = new Band()  // An instance of the Band class
+    #subscriptions = {}  // Used to store subscribers
 
     addEventListener(action, callback) {
         if (!this.#subscriptions[action]) {

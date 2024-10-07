@@ -29,15 +29,10 @@ const PLAYBACK_STATE_DICT = {
 }
 
 class Transporter {
-    #chartTitleHeading  // Used to display the chart title
-    #buttons  // Used to attach event listeners to the buttons
+    #chartTitleHeading = null  // Used to display the chart title
+    #buttons = {}  // Used to attach event listeners to the buttons
 
     constructor() {
-        this.#chartTitleHeading = null
-        this.#buttons = {}
-    }
-
-    setUp() {
         // Find the transporter div
         const transporterDiv = document.querySelector('#transporter')
 

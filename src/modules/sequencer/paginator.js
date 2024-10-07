@@ -2,13 +2,8 @@ import SETLIST from './static/setlist'
 const SETLIST_LENGTH = SETLIST.length
 
 class Paginator {
-    #chartIndex  // The index of the current chart in the setlist
-    #subscriptions  // Used to store subscriptions
-
-    constructor() {
-        this.#chartIndex = 0
-        this.#subscriptions = []
-    }
+    #chartIndex = 0  // The index of the current chart in the setlist
+    #subscriptions = []  // Used to store subscriptions
 
     addEventListener(action, callback) {
         switch (action) {
