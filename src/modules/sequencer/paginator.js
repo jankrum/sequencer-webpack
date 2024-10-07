@@ -1,11 +1,5 @@
-import SETLIST from '../../static/setlist.json'
+import SETLIST from './static/setlist'
 const SETLIST_LENGTH = SETLIST.length
-
-function loadChart(name) {
-    return {
-        title: `Title ${name}`
-    }
-}
 
 class Paginator {
     #chartIndex  // The index of the current chart in the setlist
@@ -61,8 +55,7 @@ class Paginator {
 
     #newChart() {
         // Load the new chart
-        const chartName = SETLIST[this.#chartIndex]
-        const chart = loadChart(chartName)
+        const chart = SETLIST[this.#chartIndex]
 
         // Transporter needs the chart title and the pagination information
         const chartTitle = chart.title

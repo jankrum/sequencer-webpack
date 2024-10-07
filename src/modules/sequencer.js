@@ -20,6 +20,7 @@ class Sequencer {
 
         transporter.setUp()
 
+        // Transporter -> Paginator
         transporter.addEventListener('previous', () => {
             paginator.send('PREVIOUS')
         })
@@ -28,6 +29,7 @@ class Sequencer {
             paginator.send('NEXT')
         })
 
+        // Transporter -> Playbacker
         transporter.addEventListener('play', () => {
             playbacker.send('PLAY')
         })
@@ -40,6 +42,7 @@ class Sequencer {
             playbacker.send('STOP')
         })
 
+        // Paginator -> Transporter & Playbacker
         paginator.addEventListener('newChart', event => {
             const { chart, chartTitle, canPrevious, canNext } = event
 
@@ -48,6 +51,7 @@ class Sequencer {
             playbacker.send('CHANGE_CHART', chart)
         })
 
+        // Playbacker -> Transporter
         playbacker.addEventListener('play', () => {
             transporter.send('CHANGE_PLAYBACK', 'playing')
         })
