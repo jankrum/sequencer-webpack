@@ -1,7 +1,7 @@
 import dummyScript from '../scripts/dummy.js'
 
 export default {
-    title: "Song 1",
+    title: "Bass Scale",
     parts: {
         bass: {
             script: dummyScript,

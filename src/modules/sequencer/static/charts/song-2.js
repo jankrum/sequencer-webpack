@@ -1,7 +1,7 @@
 import dummyScript from '../scripts/dummy.js'
 
 export default {
-    title: "Song 2",
+    title: "Lead Scale",
     parts: {
         lead: {
             script: dummyScript,

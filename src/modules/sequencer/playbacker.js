@@ -1,52 +1,66 @@
 import Band from './playbacker/band.js'
 
+import { ACTION_ENUM as TRANSPORTER_ACTION_ENUM } from '../transporter.js'
+
+const ACTION_ENUM = {
+    CHANGE_CHART: 0,
+    PLAY: 1,
+    PAUSE: 2,
+    STOP: 3,
+}
+
+const PLAYBACK_STATE_ENUM = {
+    PLAYING: 0,
+    PAUSED: 1,
+    STOPPED: 2,
+}
+
+const SUBSCRIPTION_ENUM = {
+    PLAY: 0,
+    PAUSE: 1,
+    RESUME: 2,
+    STOP: 3,
+}
+
 class Playbacker {
-    #playbackState = 'paused'  // 'playing', 'paused', or 'stopped'
+    #playbackState = PLAYBACK_STATE_ENUM.PAUSED
     #band = new Band()  // An instance of the Band class
     #subscriptions = {}  // Used to store subscribers
 
-    addEventListener(action, callback) {
-        if (!this.#subscriptions[action]) {
-            this.#subscriptions[action] = []
-        }
-
-        this.#subscriptions[action].push(callback)
-    }
-
     send(type, value) {
-        if (type === 'CHANGE_CHART') {
+        if (type === ACTION_ENUM.CHANGE_CHART) {
             this.#changeChart(value)
             return
         }
 
         switch (this.#playbackState) {
-            case 'playing':
+            case PLAYBACK_STATE_ENUM.PLAYING:
                 switch (type) {
-                    case 'PAUSE':
+                    case ACTION_ENUM.PAUSE:
                         this.#pause()
                         break
-                    case 'STOP':
+                    case ACTION_ENUM.STOP:
                         this.#stop()
                         break
                     default:
                         throw new Error(`Cannot ${type} while playing`)
                 }
                 break
-            case 'paused':
+            case PLAYBACK_STATE_ENUM.PAUSED:
                 switch (type) {
-                    case 'PLAY':
+                    case ACTION_ENUM.PLAY:
                         this.#resume()
                         break
-                    case 'STOP':
+                    case ACTION_ENUM.STOP:
                         this.#stop()
                         break
                     default:
                         throw new Error(`Cannot ${type} while paused`)
                 }
                 break
-            case 'stopped':
+            case PLAYBACK_STATE_ENUM.STOPPED:
                 switch (type) {
-                    case 'PLAY':
+                    case ACTION_ENUM.PLAY:
                         this.#play()
                         break
                     default:
@@ -60,29 +74,29 @@ class Playbacker {
 
     #changeChart(newChart) {
         this.#band.send('CHANGE_CHART', newChart)
-        if (this.#playbackState !== 'stopped') {
-            this.send('STOP')
+        if (this.#playbackState !== PLAYBACK_STATE_ENUM.STOPPED) {
+            this.send(ACTION_ENUM.STOP)
         }
     }
 
     #play() {
-        this.#playbackState = 'playing'
-        this.#notifySubscribers('play')
+        this.#playbackState = PLAYBACK_STATE_ENUM.PLAYING
+        this.#notifySubscribers(SUBSCRIPTION_ENUM.PLAY)
     }
 
     #pause() {
-        this.#playbackState = 'paused'
-        this.#notifySubscribers('pause')
+        this.#playbackState = PLAYBACK_STATE_ENUM.PAUSED
+        this.#notifySubscribers(SUBSCRIPTION_ENUM.PAUSE)
     }
 
     #resume() {
-        this.#playbackState = 'playing'
-        this.#notifySubscribers('resume')
+        this.#playbackState = PLAYBACK_STATE_ENUM.PLAYING
+        this.#notifySubscribers(SUBSCRIPTION_ENUM.RESUME)
     }
 
     #stop() {
-        this.#playbackState = 'stopped'
-        this.#notifySubscribers('stop')
+        this.#playbackState = PLAYBACK_STATE_ENUM.STOPPED
+        this.#notifySubscribers(SUBSCRIPTION_ENUM.STOP)
     }
 
     #notifySubscribers(action) {
@@ -92,6 +106,33 @@ class Playbacker {
             throw new Error(`Invalid action: ${action}`)
         }
     }
+
+    #addEventListener(action, callback) {
+        if (!this.#subscriptions[action]) {
+            this.#subscriptions[action] = []
+        }
+
+        this.#subscriptions[action].push(callback)
+    }
+
+    setUp(transporter) {
+        // Playbacker -> Transporter
+        this.#addEventListener(SUBSCRIPTION_ENUM.PLAY, () => {
+            transporter.send(TRANSPORTER_ACTION_ENUM.CHANGE_PLAYBACK, 'playing')
+        })
+
+        this.#addEventListener(SUBSCRIPTION_ENUM.PAUSE, () => {
+            transporter.send(TRANSPORTER_ACTION_ENUM.CHANGE_PLAYBACK, 'paused')
+        })
+
+        this.#addEventListener(SUBSCRIPTION_ENUM.RESUME, () => {
+            transporter.send(TRANSPORTER_ACTION_ENUM.CHANGE_PLAYBACK, 'playing')
+        })
+
+        this.#addEventListener(SUBSCRIPTION_ENUM.STOP, () => {
+            transporter.send(TRANSPORTER_ACTION_ENUM.CHANGE_PLAYBACK, 'stopped')
+        })
+    }
 }
 
-export default Playbacker
+export { Playbacker as default }

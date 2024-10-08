@@ -1,30 +1,28 @@
 import SETLIST from './static/setlist'
 const SETLIST_LENGTH = SETLIST.length
 
+import { ACTION_ENUM as TRANSPORTER_ACTION_ENUM } from '../transporter.js'
+import { ACTION_ENUM as PLAYBACKER_ACTION_ENUM } from './playbacker.js'
+
+const ACTION_ENUM = {
+    PREVIOUS: 0,
+    NEXT: 1,
+    INIT: 2,
+}
+
 class Paginator {
     #chartIndex = 0  // The index of the current chart in the setlist
-    #subscriptions = []  // Used to store subscriptions
-
-    addEventListener(action, callback) {
-        switch (action) {
-            case 'newChart':
-                // The only action we have is newChart
-                this.#subscriptions.push(callback)
-                break
-            default:
-                throw new Error(`Invalid action: ${action}`)
-        }
-    }
+    #subscription = () => { }  // Used as callback for subscribers
 
     send(type) {
         switch (type) {
-            case 'PREVIOUS':
+            case ACTION_ENUM.PREVIOUS:
                 this.#goPrevious()
                 break
-            case 'NEXT':
+            case ACTION_ENUM.NEXT:
                 this.#goNext()
                 break
-            case 'INIT':
+            case ACTION_ENUM.INIT:
                 this.#newChart()
                 break
             default:
@@ -57,11 +55,20 @@ class Paginator {
         const canPrevious = this.#chartIndex > 0
         const canNext = this.#chartIndex < SETLIST_LENGTH - 1
 
-        // Notify all subscribers
-        for (const subscriber of this.#subscriptions) {
-            subscriber({ chart, chartTitle, canPrevious, canNext })
+        // Send to subscribers
+        this.#subscription({ chart, chartTitle, canPrevious, canNext })
+    }
+
+    setUp(transporter, playbacker) {
+        // Paginator -> Transporter & Playbacker
+        this.#subscription = event => {
+            const { chart, chartTitle, canPrevious, canNext } = event
+
+            transporter.send(TRANSPORTER_ACTION_ENUM.CHANGE_CHART, { chartTitle, canPrevious, canNext })
+
+            playbacker.send(PLAYBACKER_ACTION_ENUM.CHANGE_CHART, chart)
         }
     }
 }
 
-export default Paginator
+export { Paginator as default, ACTION_ENUM }

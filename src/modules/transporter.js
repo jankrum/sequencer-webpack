@@ -1,5 +1,11 @@
 import dm from './dm.js'
 
+import { ACTION_ENUM as PAGINATOR_ACTION_ENUM } from './sequencer/paginator.js'
+import { ACTION_ENUM as PLAYBACKER_ACTION_ENUM } from './sequencer/playbacker.js'
+
+// Used to find the transporter div
+const TRANSPORTER_SELECT = '#transporter'
+
 // Used to create the transporter buttons
 const BUTTON_SYMBOLS_AND_NAMES = [
     ['⏮', 'previous'],
@@ -8,6 +14,17 @@ const BUTTON_SYMBOLS_AND_NAMES = [
     ['⏹', 'stop'],
     ['⏭', 'next'],
 ]
+
+const ACTION_ENUM = {
+    CHANGE_CHART: 0,
+    CHANGE_PLAYBACK: 1,
+}
+
+const STATE_ENUM = {
+    PLAYING: 0,
+    PAUSED: 1,
+    STOPPED: 2,
+}
 
 // Used to determine which buttons should be disabled
 const PLAYBACK_STATE_DICT = {
@@ -28,13 +45,22 @@ const PLAYBACK_STATE_DICT = {
     },
 }
 
+// Used to set up event listeners for the buttons
+const BUTTON_NAMES_AND_TARGETS = [
+    ['previous', 'paginator', PAGINATOR_ACTION_ENUM.PREVIOUS],
+    ['next', 'paginator', PAGINATOR_ACTION_ENUM.NEXT],
+    ['play', 'playbacker', PLAYBACKER_ACTION_ENUM.PLAY],
+    ['pause', 'playbacker', PLAYBACKER_ACTION_ENUM.PAUSE],
+    ['stop', 'playbacker', PLAYBACKER_ACTION_ENUM.STOP],
+]
+
 class Transporter {
     #chartTitleHeading = null  // Used to display the chart title
     #buttons = {}  // Used to attach event listeners to the buttons
 
     constructor() {
         // Find the transporter div
-        const transporterDiv = document.querySelector('#transporter')
+        const transporterDiv = document.querySelector(TRANSPORTER_SELECT)
 
         // Create the chart title heading
         const chartTitleHeading = this.#chartTitleHeading = dm('h2')
@@ -53,25 +79,12 @@ class Transporter {
         transporterDiv.append(chartTitleHeading, buttonDiv)
     }
 
-    addEventListener(name, callback) {
-        // The button we will attach the event listener to
-        const button = this.#buttons[name]
-
-        // If the button does not exist, throw an error
-        if (!button) {
-            throw new Error(`Invalid button name: ${name}`)
-        }
-
-        // Attach the event listener to the button
-        button.addEventListener('click', callback)
-    }
-
     send(type, value) {
         switch (type) {
-            case 'CHANGE_CHART':
+            case ACTION_ENUM.CHANGE_CHART:
                 this.#changeChart(value)
                 break
-            case 'CHANGE_PLAYBACK':
+            case ACTION_ENUM.CHANGE_PLAYBACK:
                 this.#changePlayback(value)
                 break
             default:
@@ -100,6 +113,18 @@ class Transporter {
             this.#buttons[name].disabled = isDisabled
         }
     }
+
+    setUp(paginator, playbacker) {
+        // The targets for the actions
+        const targets = { paginator, playbacker }
+
+        // Attach event listeners to the buttons
+        for (const [name, target, action] of BUTTON_NAMES_AND_TARGETS) {
+            this.#buttons[name].addEventListener('mousedown', () => {
+                targets[target].send(action)
+            })
+        }
+    }
 }
 
-export default Transporter
+export { Transporter as default, ACTION_ENUM, STATE_ENUM }
