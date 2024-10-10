@@ -1,1 +1,1 @@
-# web-sequencer-webpack
+# sequencer-webpack
